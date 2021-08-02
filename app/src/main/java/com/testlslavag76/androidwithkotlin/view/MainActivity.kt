@@ -1,8 +1,8 @@
-package com.testlslavag76.androidwithkotlin
+package com.testlslavag76.androidwithkotlin.view
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import com.testlslavag76.androidwithkotlin.ui.main.MainFragment
+import com.testlslavag76.androidwithkotlin.R
 
 class MainActivity : AppCompatActivity() {
 
