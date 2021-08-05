@@ -12,7 +12,7 @@ class MainViewModel(private val repository: Repository = RepositoryImpl()) :
     ViewModel() {
 
     private val lieDataToObserve: MutableLiveData<AppState> = MutableLiveData()
-    private var counter: Int = 0
+
 
     fun getData(): LiveData<AppState> {
 
@@ -20,21 +20,22 @@ class MainViewModel(private val repository: Repository = RepositoryImpl()) :
     }
 
 
-    fun getWheatherFromLocalStorage() {
-        lieDataToObserve.value = AppState.Loading
-        Thread {
-            sleep(2000)
-            counter++
-            lieDataToObserve.postValue(AppState.Success(repository.getWheatherFromLocalStorage()))
-        }.start()
-    }
+    fun getWheatherFromLocalStorageRus() = getDataFromLocalsource(isRussia = true)
 
-    fun getWheatherFromServer() {
+    fun getWheatherFromLocalStorageWorld() = getDataFromLocalsource(isRussia= false)
+
+
+    private fun getDataFromLocalsource(isRussia: Boolean) {
         lieDataToObserve.value = AppState.Loading
         Thread {
-            sleep(1000)
-            counter++
-            lieDataToObserve.postValue(AppState.Success(repository.getWheatherFromServer()))
+            sleep(3000)
+            lieDataToObserve.postValue(
+                AppState.Success(
+                    if (isRussia)
+                        repository.getWheatherFromLocalStorageRus()
+                    else repository.getWheatherFromLocalStorageWorld()
+                )
+            )
         }.start()
     }
 }
