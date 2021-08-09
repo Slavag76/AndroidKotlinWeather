@@ -39,11 +39,11 @@ class MainFragment : Fragment() {
         return binding.root
     }
 
-    override fun onDestroyView() {
-        super.onDestroyView()
-        _binding = null
-        adapter.removeOnItemViewClickListener()
-    }
+//    override fun onDestroyView() {
+//        super.onDestroyView()
+//        _binding = null
+//        adapter.removeOnItemViewClickListener()
+//    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -52,19 +52,18 @@ class MainFragment : Fragment() {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        adapter.setOnItemViewClickListener(object : OnItemViewClickListener {
-            override fun onItemViewClick(weather: Weather) {
-                val manager = activity?.supportFragmentManager
-                if (manager != null) {
-                    val bundle = Bundle()
-                    bundle.putParcelable(DetailsFragment.BUNDLE_EXTRA, weather)
-                    manager.beginTransaction()
-                        .add(R.id.container, DetailsFragment.newInstance(bundle))
-                        .addToBackStack("")
-                        .commitAllowingStateLoss()
-                }
+        adapter.setOnItemViewClickListener { weather ->
+            activity?.supportFragmentManager?.apply {
+                beginTransaction()
+                    .add(R.id.container, DetailsFragment.newInstance(Bundle().apply {
+
+                        putParcelable(DetailsFragment.BUNDLE_EXTRA, weather)
+
+                    }))
+                    .addToBackStack("")
+                    .commitAllowingStateLoss()
             }
-        })
+        }
 
         binding.mainFragmentRecyclerView.adapter = adapter
         binding.mainFragmentFAB.setOnClickListener {
@@ -90,30 +89,22 @@ class MainFragment : Fragment() {
     private fun renderData(data: AppState) {
         when (data) {
             is AppState.Success -> {
-                val weatherData = data.weatherData
-                binding.mainFragmentLoadingLayout.visibility = View.GONE
-                adapter.setWeather(weatherData)
+
+                binding.mainFragmentLoadingLayout.hide()
+                adapter.setWeather(data.weatherData)
             }
 
             is AppState.Loading -> {
-                binding.mainFragmentLoadingLayout.visibility = View.VISIBLE
+                binding.mainFragmentLoadingLayout.show()
             }
 
             is AppState.Error -> {
-                binding.mainFragmentLoadingLayout.visibility = View.GONE
-                Snackbar.make(binding.mainFragmentFAB, "Error", Snackbar.LENGTH_INDEFINITE)
-                    .setAction("Reload") {
-                        if (isDataSetRus) viewModel.getWheatherFromLocalStorageRus()
-                        else viewModel.getWheatherFromLocalStorageWorld()
-                    }
-                    .show()
+                binding.mainFragmentLoadingLayout.hide()
+                binding.mainFragmentFAB.showSnacBar("Error", "Reload") {
+                    if (isDataSetRus) viewModel.getWheatherFromLocalStorageRus()
+                    else viewModel.getWheatherFromLocalStorageWorld()
+                }
             }
-
         }
-
-    }
-
-    interface OnItemViewClickListener {
-        fun onItemViewClick(weather: Weather)
     }
 }
