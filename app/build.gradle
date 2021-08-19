@@ -18,6 +18,7 @@ android {
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
 
+
     buildTypes {
         release {
             minifyEnabled false
@@ -35,11 +36,27 @@ android {
     buildFeatures {
         viewBinding true
     }
+
+    buildTypes.each {
+        Properties properties = new Properties()
+        properties.load(project.rootProject.file("local.properties").newDataInputStream())
+        def apiKey = properties.getProperty("yandex_weather_api_key", "")
+        it.buildConfigField "String", "WEATHER_API_KEY", apiKey
+    }
+
 }
 
 dependencies {
+//    //OkHttp
+//    implementation 'com.squareup.okhttp3:okhttp:3.14.9'
 
-    implementation 'com.google.code.gson:gson:2.8.6'
+    //Retrofit
+    implementation 'com.squareup.retrofit2:retrofit:2.9.0'
+    implementation 'com.squareup.retrofit2:converter-gson:2.9.0'
+
+    //Picasso
+    implementation 'com.squareup.picasso:picasso:2.71828'
+
 
     implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
     implementation 'androidx.core:core-ktx:1.6.0'
