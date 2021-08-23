@@ -13,6 +13,7 @@ import com.squareup.picasso.Picasso
 import com.testlslavag76.androidwithkotlin.R
 import com.testlslavag76.androidwithkotlin.databinding.DetailsFragmentBinding
 import com.testlslavag76.androidwithkotlin.model.AppState
+import com.testlslavag76.androidwithkotlin.model.data.City
 import com.testlslavag76.androidwithkotlin.model.data.Weather
 import com.testlslavag76.androidwithkotlin.viewmodel.DetailsViewModel
 import kotlinx.android.synthetic.main.details_fragment.*
@@ -75,6 +76,8 @@ class DetailsFragment : Fragment() {
             city.lat.toString(),
             city.lon.toString()
         )
+        saveCity(city, weather)
+
         binding.temperatureValue.text = weather.temperature.toString()
         binding.feelsLikeValue.text = weather.feelslike.toString()
         binding.weatherCondition.text = weather.condition
@@ -90,6 +93,21 @@ class DetailsFragment : Fragment() {
         super.onDestroyView()
         _binding = null
     }
+
+    private fun saveCity(
+        city: City,
+        weather: Weather
+    ) {
+        viewModel.saveCityToDB(
+            Weather(
+                city,
+                weather.temperature,
+                weather.feelslike,
+                weather.condition
+            )
+        )
+    }
+
 
 
     companion object {
