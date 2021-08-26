@@ -1,5 +1,6 @@
 package com.testlslavag76.androidwithkotlin.view
 
+import android.content.Context
 import androidx.lifecycle.ViewModelProvider
 import android.os.Bundle
 import androidx.fragment.app.Fragment
@@ -7,13 +8,12 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.lifecycle.Observer
-import androidx.viewbinding.ViewBinding
-import com.google.android.material.snackbar.Snackbar
 import com.testlslavag76.androidwithkotlin.R
 import com.testlslavag76.androidwithkotlin.databinding.MainFragmentBinding
 import com.testlslavag76.androidwithkotlin.model.AppState
-import com.testlslavag76.androidwithkotlin.model.data.Weather
 import com.testlslavag76.androidwithkotlin.viewmodel.MainViewModel
+
+private const val IS_RUSSIAN_KEY = "LIST_OF_TOWNS_KEY"
 
 
 class MainFragment : Fragment() {
@@ -39,11 +39,6 @@ class MainFragment : Fragment() {
         return binding.root
     }
 
-//    override fun onDestroyView() {
-//        super.onDestroyView()
-//        _binding = null
-//        adapter.removeOnItemViewClickListener()
-//    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -68,14 +63,43 @@ class MainFragment : Fragment() {
         binding.mainFragmentRecyclerView.adapter = adapter
         binding.mainFragmentFAB.setOnClickListener {
             changeWeatherDataSet()
+            saveListOfTowns()
+
         }
 
         val observer = Observer<AppState> { a -> renderData(a) }
         viewModel.getData().observe(viewLifecycleOwner, observer)
-        viewModel.getWheatherFromLocalStorageRus()
+         showListOfTowns()
+
     }
 
+    private fun showListOfTowns() {
+        activity?.let {
+            if (it.getPreferences(Context.MODE_PRIVATE).getBoolean(IS_RUSSIAN_KEY, false)) {
+                changeWeatherDataSet()
+            } else {
+                viewModel.getWheatherFromLocalStorageRus()
+            }
+        }
+    }
+
+
+    private fun saveListOfTowns() {
+        activity?.let {
+            with(it.getPreferences(Context.MODE_PRIVATE).edit()) {
+                putBoolean(IS_RUSSIAN_KEY, isDataSetRus)
+                apply()
+            }
+        }
+    }
+
+
     private fun changeWeatherDataSet() {
+        isDataSetRus = !isDataSetRus
+        showWeatherDataSet()
+    }
+
+    private fun showWeatherDataSet() {
         if (isDataSetRus) {
             viewModel.getWheatherFromLocalStorageRus()
             binding.mainFragmentFAB.setImageResource(R.drawable.ic_russia)
@@ -83,7 +107,6 @@ class MainFragment : Fragment() {
             viewModel.getWheatherFromLocalStorageWorld()
             binding.mainFragmentFAB.setImageResource(R.drawable.ic_earth)
         }
-        isDataSetRus = !isDataSetRus
     }
 
     private fun renderData(data: AppState) {
